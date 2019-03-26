@@ -2,6 +2,7 @@ package cn.whu.ypfamily.BigGeoDataHBaseLoader.util;
 
 import ch.hsr.geohash.GeoHash;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
@@ -15,7 +16,8 @@ public class LoaderUtil {
 
     /**
      * sv中的一行数据转为HBase的输出
-     * @param line 输入行
+     *
+     * @param line      输入行
      * @param geom_type 几何对象类型
      * @return 输出键值对
      */
@@ -59,6 +61,10 @@ public class LoaderUtil {
             p.addColumn(geom_type.getBytes(), "the_geom".getBytes(), new WKBWriter().write(geom));
             p.addColumn(geom_type.getBytes(), "oid".getBytes(), oid.getBytes());
             p.addColumn(geom_type.getBytes(), "tags".getBytes(), tags.getBytes());
+            p.addColumn(geom_type.getBytes(), "min_x".getBytes(), Bytes.toBytes(env.getMinX()));
+            p.addColumn(geom_type.getBytes(), "max_x".getBytes(), Bytes.toBytes(env.getMaxX()));
+            p.addColumn(geom_type.getBytes(), "min_y".getBytes(), Bytes.toBytes(env.getMinY()));
+            p.addColumn(geom_type.getBytes(), "max_y".getBytes(), Bytes.toBytes(env.getMaxY()));
             m.put("key", geo_rowKey);
             m.put("value", p);
             return m;
