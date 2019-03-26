@@ -103,7 +103,7 @@ public class PointLoader extends Configured implements Tool {
             try {
                 Geometry geom = new WKTReader().read(geom_wkt);
 
-                Put p = new Put((geo_hash + "_" + oid).getBytes());
+                Put p = new Put((geo_hash + "~" + oid).getBytes());
                 p.addColumn(geom_type.getBytes(), "the_geom".getBytes(), new WKBWriter().write(geom));
                 p.addColumn(geom_type.getBytes(), "oid".getBytes(), oid.getBytes());
                 p.addColumn(geom_type.getBytes(), "tags".getBytes(), tags.getBytes());

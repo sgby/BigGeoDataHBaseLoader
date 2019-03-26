@@ -2,7 +2,6 @@ package cn.whu.ypfamily.BigGeoDataHBaseLoader.util;
 
 import ch.hsr.geohash.GeoHash;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
@@ -48,6 +47,7 @@ public class LoaderUtil {
             Double maxX = env.getMaxX();
             Double minY = env.getMinY();
             Double maxY = env.getMaxY();
+            String bbox = minX + "," + minY + "," + maxX + "," + maxY;
             String[] arrGeoHashes = {
                     GeoHash.geoHashStringWithCharacterPrecision(minY, minX, 12),
                     GeoHash.geoHashStringWithCharacterPrecision(minY, maxX, 12),
@@ -55,16 +55,13 @@ public class LoaderUtil {
                     GeoHash.geoHashStringWithCharacterPrecision(maxY, minX, 12)
             };
             String strGeoHash = TextUtil.longestCommonPrefix(arrGeoHashes);
-            String geo_rowKey = strGeoHash + "_" + oid;
+            String geo_rowKey = strGeoHash + "~" + oid;
             // 获取输出
             Put p = new Put(geo_rowKey.getBytes());
             p.addColumn(geom_type.getBytes(), "the_geom".getBytes(), new WKBWriter().write(geom));
             p.addColumn(geom_type.getBytes(), "oid".getBytes(), oid.getBytes());
             p.addColumn(geom_type.getBytes(), "tags".getBytes(), tags.getBytes());
-            p.addColumn(geom_type.getBytes(), "min_x".getBytes(), Bytes.toBytes(env.getMinX()));
-            p.addColumn(geom_type.getBytes(), "max_x".getBytes(), Bytes.toBytes(env.getMaxX()));
-            p.addColumn(geom_type.getBytes(), "min_y".getBytes(), Bytes.toBytes(env.getMinY()));
-            p.addColumn(geom_type.getBytes(), "max_y".getBytes(), Bytes.toBytes(env.getMaxY()));
+            p.addColumn(geom_type.getBytes(), "bbox".getBytes(), bbox.getBytes());
             m.put("key", geo_rowKey);
             m.put("value", p);
             return m;
